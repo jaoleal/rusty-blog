@@ -6,6 +6,10 @@
 
 **Bold Text**
 
+![Splash](Untitled.jpg)
+
+[local link](subcontent/test.md)
+
 *Italic Text*
 
 [Link Text](https://example.com)
