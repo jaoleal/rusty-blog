@@ -19,3 +19,22 @@ and your rusty-blog will work and be up and running so you can host it with gith
 * Statically converting md tags to html tags
 
 * .md local links will point to a .html with the same name
+
+## I will work on
+
+* home page static template
+
+* Tailwind Support
+
+* toml config
+``` TOML
+[config]
+output = "output/"
+css_file = "theme.css"
+```
+* sections organized by pastes(directories) or by toml
+``` TOML
+[ sections ]
+home = "home.md"
+posts = "posts/"
+```
