@@ -47,12 +47,18 @@ pub mod content_parser {
         }
     }
 }
+pub mod blog{
+    use yew::Html;
+
+    pub enum html{
+        Post(String)
+    }
+}
 pub mod content_renderer {
     use crate::watcher::content_parser::Branch;
     use std::{any::{type_name, Any}, fs, io::{Read, Write}, path::PathBuf};
     use anyhow::{Ok, Result};
     use markdown::to_html;
-    use yew::html;
     pub struct Renderer<'a> {
         pub content_tree: &'a Vec<Branch>,
         pub output_path: PathBuf,
@@ -64,7 +70,13 @@ pub mod content_renderer {
                 output_path,
             }
         }
-        
+        pub fn inner_md_to_hmtl(&self, html_string: String) -> String {
+            /* 
+                This function ensures that all the links to markdown files are replaced with links to a html file            
+             */
+            let ret = html_string.replace(".md", ".html");
+            ret
+        }
         pub fn render(&self, section: Option<String>) -> Result<()> {
             for branch in self.content_tree {
                 match &branch.children {
@@ -72,7 +84,7 @@ pub mod content_renderer {
                         let mut path = self.output_path.clone();
                         path.push(&branch.path);
                         std::fs::create_dir_all(&path)?;
-                        let mut renderer = Renderer::new(children, path.clone());
+                        let renderer = Renderer::new(children, path.clone());
                         renderer.render( Some(path.to_str().unwrap().to_string()))?;
                     }
                     None => {
@@ -84,6 +96,12 @@ pub mod content_renderer {
                                 Result::Ok(mut file) => {
                                     file.read_to_string(&mut md_content)?;
                                     html_content = to_html(&md_content);
+                                    html_content = self.inner_md_to_hmtl(html_content); 
+                                    let mut output_path = self.output_path.clone();
+                                    output_path.push(&branch.path);
+                                    output_path.set_extension("html");
+                                    let mut file = fs::File::create(output_path)?;
+                                    file.write_all(html_content.as_bytes())?;
                                 }
                                 Err(err) => {
                                     return Err(anyhow::Error::new(err));
@@ -91,7 +109,6 @@ pub mod content_renderer {
                                 
                             }
                         }
-                        println!("{:?}", html_content);
                     }
                 };
             };
